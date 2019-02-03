@@ -1,0 +1,180 @@
+openapi: 3.0.0
+info:
+  description: Backend API that communicates with the Discord Gateway server.  The gateway itself mainly acts as a relay for HTTP calls and as an agent for the WS communication to execute actions. 
+  version: "0.0.1"
+  title: DDD Gateway API
+  contact:
+    email: josephs@jtstechnic.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+servers:
+  - url: 'http://ddd.io:1026'
+    description: Temporary local server (1026 port)
+tags:
+  - name: Users
+    description: User related calls
+  - name: Servers
+    description: Server related calls
+  - name: Actions
+    description: Action execution calls
+paths:
+  /servers/{id}:
+    get:
+      security:
+        - basic: []
+      tags:
+        - Servers
+      summary: Get a server.
+      description: >
+        Get a server's discord info.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Server'
+        '404':
+          description: A Server with specified ID could not be found.
+        '400':
+          description: Malformed ID.  ID must be 64-bit integer.
+        '401':
+          $ref: '#/components/schemas/401'
+        '500':
+          $ref: '#/components/schemas/500'
+  /servers/{id}/members:
+    get:
+      security:
+        - basic: []
+      tags:
+        - Servers
+      summary: Get a server's members
+      description: >
+        Get a server's discord info.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '404':
+          description: A Server with specified ID could not be found.
+        '400':
+          description: Malformed ID.  ID must be 64-bit integer.
+        '401':
+          $ref: '#/components/schemas/401'
+        '500':
+          $ref: '#/components/schemas/500'
+  /users/{id}:
+    get:
+      security:
+        - basic: []
+      tags:
+        - Users
+      summary: Get a user.
+      description: >
+        Get a specific user object.
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: A User with specified ID could not be found.
+        '400':
+          description: Malformed ID.  ID must be 64-bit integer.
+        '401':
+          $ref: '#/components/schemas/401'
+        '500':
+          $ref: '#/components/schemas/500'
+  /users/{id}/servers:
+    get:
+      security:
+        - basic: []
+      tags:
+        - Users
+      summary: Get a user's servers
+      description: >
+        A list of server objects
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: OK.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Server'
+        '404':
+          description: A User with specified ID could not be found.
+        '400':
+          description: Malformed ID.  ID must be 64-bit integer.
+        '401':
+          $ref: '#/components/schemas/401'
+        '500':
+          $ref: '#/components/schemas/500'
+components:
+  parameters:
+    id:
+      name: id
+      in: path
+      description: A Discord/Twitter snowflake-style ID.
+      example: 530199570009948190
+      required: true
+      schema:
+        type: integer
+  securitySchemes:
+    basic:
+      type: http
+      scheme: basic
+  schemas:
+    '500':
+      description: Internal server error.
+    '401':
+      description: Authorization invalid.
+    AuthToken:
+      type: object
+      properties:
+        access_token:
+          type: string
+        token_type: 
+          type: string
+        expires_in:
+          type: integer
+        refresh_token:
+          type: string
+        scope:
+          type: string
+    Server:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        icon_hash:
+          type: string
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        avatar_hash:
+          type: string
+        
