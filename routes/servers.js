@@ -115,14 +115,49 @@ router.get('/:id/roles', function(req, res) {
         return;
     }
     // Send back a list of roles
-    const roles = guild.roles.map((role, id) => {
+    const roles = guild.roles.map((role) => {
         return {
-            id,
+            id: role.id,
             color: role.hexColor,
             name: role.name,
         };
     });
     res.status(200).json(roles);
+});
+
+router.get('/:id/channels', function(req, res) {
+    if(!checkSnowflake(req.params.id)) {
+        // TODO: Standardize error object + wrap error object
+        res.status(401).json({
+            type: 'internal',
+            stage: 'gateway',
+            message: `Malformed ID ${req.params.id}`,
+            http_status: 401,
+            previous: null,
+        });
+        return;
+    }
+    const guild = client.guilds.get(req.params.id);
+    if(!guild || !guild.available) {
+        // TODO: Standardize error object + wrap error object
+        res.status(404).json({
+            type: 'discord',
+            stage: 'gateway',
+            message: 'Guild not found or unavailable',
+            http_status: 404,
+            previous: null,
+        });
+        return;
+    }
+    // Send back a list of channels
+    const channels = guild.channels.map((channel) => {
+        return {
+            id: channel.id,
+            type: channel.type,
+            name: channel.name,
+        };
+    });
+    res.status(200).json(channels);
 });
 
 module.exports = router;
